@@ -22,3 +22,4 @@ pip install --pre --extra-index-url=https://kivy.org/downloads/simple kivy[base]
 ```
 python main.py
 ```
+mo liat notif muncul
