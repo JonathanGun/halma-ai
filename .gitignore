@@ -1,0 +1,14 @@
+.vscode/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+
+# created by pyinstaller
+build/
+dist/
+
+# created by buildozer
+.buildozer/
+bin/
+
+*.spec
