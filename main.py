@@ -6,8 +6,19 @@ import enum
 from collections import defaultdict, deque
 
 
-targets = defaultdict(list)
+TARGETS = defaultdict(list)
+PLAYERS = 4
+BOARD_SIZE = 8
 
+def enemy(pion):
+    if pion == Pion.RED:
+        return Pion.GREEN
+    if pion == Pion.GREEN:
+        return Pion.RED
+    if pion == Pion.BLUE:
+        return Pion.YELLOW
+    if pion == Pion.YELLOW:
+        return Pion.BLUE
 
 class Pion(enum.IntEnum):
     RED = 0
@@ -60,9 +71,9 @@ class Board(GridLayout):
     def setup(self):
         for i in range(self.rows):
             for j in range(self.cols):
-                for pion, target in targets.items():
-                    if (i, j) in target:
-                        self.board[i][j] = Cell(i, j, (pion + 2) % 4)
+                for pion, target in TARGETS.items():
+                    if (i, j) in target and pion < PLAYERS:
+                        self.board[i][j] = Cell(i, j, enemy(pion))
                         break
                 else:
                     self.board[i][j] = Cell(i, j, None)
@@ -96,7 +107,7 @@ class Game(App):
         for cell in self.board:
             self.board.add_widget(cell)
         for player in self.players:
-            player.targets = [self.board.board[i][j] for (i, j) in targets[player.pion]]
+            player.targets = [self.board.board[i][j] for (i, j) in TARGETS[player.pion]]
         return self.board
 
     def check_winner(self):
@@ -111,15 +122,14 @@ class Game(App):
 
 if __name__ == "__main__":
     # pseudocode: https://pastebin.com/n8yMAMhz
-    board_size = 8
-    for i in range(board_size):
-        for j in range(board_size):
+    for i in range(BOARD_SIZE):
+        for j in range(BOARD_SIZE):
             if i + j < 4:
-                targets[Pion.RED].append((i, j))
-            elif i + j > board_size + board_size - 6:
-                targets[Pion.GREEN].append((i, j))
-            elif j - i >= board_size - 4:
-                targets[Pion.BLUE].append((i, j))
-            elif i - j >= board_size - 4:
-                targets[Pion.YELLOW].append((i, j))
-    Game(players=4, board_size=board_size).run()
+                TARGETS[Pion.GREEN].append((i, j))
+            elif i + j > BOARD_SIZE + BOARD_SIZE - 6:
+                TARGETS[Pion.RED].append((i, j))
+            elif j - i >= BOARD_SIZE - 4:
+                TARGETS[Pion.YELLOW].append((i, j))
+            elif i - j >= BOARD_SIZE - 4:
+                TARGETS[Pion.BLUE].append((i, j))
+    Game(players=PLAYERS, board_size=BOARD_SIZE).run()
