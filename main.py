@@ -2,8 +2,11 @@ from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.core.window import Window
 from kivy.uix.button import Button
-from queue import Queue
 import enum
+from collections import defaultdict, deque
+
+
+targets = defaultdict(list)
 
 
 class Pion(enum.IntEnum):
@@ -57,13 +60,10 @@ class Board(GridLayout):
     def setup(self):
         for i in range(self.rows):
             for j in range(self.cols):
-                if i + j < 4:
-                    self.board[i][j] = Cell(i, j, Pion.RED)
-                elif i + j > self.cols + self.rows - 6:
-                    self.board[i][j] = Cell(i, j, Pion.GREEN)
-                elif self.players != 2:
-                    # ujung kanan atas sama kiri bawah
-                    self.board[i][j] = Cell(i, j, None)  # placeholder
+                for pion, target in targets.items():
+                    if (i, j) in target:
+                        self.board[i][j] = Cell(i, j, (pion + 2) % 4)
+                        break
                 else:
                     self.board[i][j] = Cell(i, j, None)
 
@@ -71,8 +71,6 @@ class Board(GridLayout):
 class Player:
     def __init__(self, pion):
         self.pion = pion
-        print(pion)
-        self.targets = []  # koordinat / pointer ke petak tujuan
 
     def minimax(self):
         pass
@@ -89,11 +87,7 @@ class Tree:
 
 class Game(App):
     def __init__(self, players=2, board_size=8, **kwargs):
-        self.players = players
-        self.next_players = Queue()
-        for i in range(self.players):
-            self.next_players.put(Player(Pion(i)))
-        self.active_player = self.next_players.get()
+        self.players = deque([Player(Pion(i)) for i in range(players)])
         self.board_size = board_size
         super().__init__(**kwargs)
 
@@ -101,18 +95,31 @@ class Game(App):
         self.board = Board(size=self.board_size, players=self.players)
         for cell in self.board:
             self.board.add_widget(cell)
+        for player in self.players:
+            player.targets = [self.board.board[i][j] for (i, j) in targets[player.pion]]
         return self.board
 
     def check_winner(self):
-        # for player in board.players:
-        #     for goal in goal_cells[player.pion]:
-        #       if goal.pion != player.pion:
-        #         break
-        #     else:
-        #       return player
+        for player in self.players:
+            for goal in player.targets:
+                if goal.pion != player.pion:
+                    break
+            else:
+                return player
         return None
 
 
 if __name__ == "__main__":
     # pseudocode: https://pastebin.com/n8yMAMhz
-    Game(players=2).run()
+    board_size = 8
+    for i in range(board_size):
+        for j in range(board_size):
+            if i + j < 4:
+                targets[Pion.RED].append((i, j))
+            elif i + j > board_size + board_size - 6:
+                targets[Pion.GREEN].append((i, j))
+            elif j - i >= board_size - 4:
+                targets[Pion.BLUE].append((i, j))
+            elif i - j >= board_size - 4:
+                targets[Pion.YELLOW].append((i, j))
+    Game(players=4, board_size=board_size).run()
