@@ -9,6 +9,9 @@ from collections import defaultdict
 TARGETS = defaultdict(list)
 BOARD_SIZE = 8
 
+selected_cell = None
+game = None
+
 def enemy(pion):
     return (pion + 1) % 2
 
@@ -24,19 +27,38 @@ class Cell(Button):
     default_color = (0.3, 0.3, 0.3, 1)
 
     def __init__(self, i, j, pion=None, **kwargs):
-        super(Button, self).__init__(**kwargs)
-        self.bind(on_press=self._on_press)
         self.i = i
         self.j = j
         self.pion = pion
+
+        super(Button, self).__init__(**kwargs)
+        self.bind(on_press=self._on_press)
         self.font_size = 40
         self.background_color = Cell.colors.get(self.pion, Cell.default_color)
 
     def _on_press(self, instance):
         print("clicked", instance.i, instance.j)
+        global selected_cell
+        if selected_cell == instance:
+            (x, y, z, a) = selected_cell.background_color
+            selected_cell.background_color = (x / 1.5, y / 1.5, z / 1.5, a)
+            selected_cell = None
+        elif selected_cell is None:
+            if instance.pion is not None:
+                selected_cell = instance
+                (x, y, z, a) = selected_cell.background_color
+                selected_cell.background_color = (x * 1.5, y * 1.5, z * 1.5, a)
+        else:
+            frm = selected_cell
+            to = instance
+            self._on_press(frm)
+            game.move(frm, to)
 
     def is_inside_board(self):
         return 0 <= self.i < BOARD_SIZE and 0 <= self.j < BOARD_SIZE
+
+    def __str__(self):
+        return f"({self.i},{self.j})"
 
 
 class Board(GridLayout):
@@ -126,11 +148,21 @@ class Game(App):
         return validCells
 
     def is_valid_move(self, frm, to):
-        return all(
-            self.board.valid_cells(*to),
+        return all([
+            self.board.valid_cell(to.i, to.j),
+            to.pion is None,
             not(frm in TARGETS[self.enemy] and to not in TARGETS[self.enemy]),  # from enemy base to normal cell
             not(frm not in TARGETS[self.active_player] and to in TARGETS[self.active_player]),  # from normal cell to our base
-        )
+        ])
+
+    def move(self, frm, to):
+        if self.is_valid_move(frm, to):
+            print("moved", frm, "to", to)
+            to.background_color, frm.background_color = frm.background_color, to.background_color
+            to.pion = frm.pion
+            frm.pion = None
+        else:
+            print("failed to move", frm, "to", to)
 
     def next_turn(self):
         self.active_player, self.enemy = self.enemy, self.active_player
@@ -143,4 +175,5 @@ if __name__ == "__main__":
                 TARGETS[Pion.BLUE].append((i, j))
             elif i + j > BOARD_SIZE + BOARD_SIZE - 6:
                 TARGETS[Pion.RED].append((i, j))
-    Game(board_size=BOARD_SIZE).run()
+    game = Game(board_size=BOARD_SIZE)
+    game.run()
