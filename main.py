@@ -10,7 +10,6 @@ TARGETS = defaultdict(list)
 BOARD_SIZE = 8
 
 selected_cell = None
-game = None
 
 def enemy(pion):
     return (pion + 1) % 2
@@ -107,11 +106,14 @@ class Tree:
         self.node = state
         self.successors = []
 
-    @property
-    def objective(self):
-        value = 0
-        # sum of max distance of each pion
-        return -value
+    # @property
+    # def objective(self):
+    #     value = 0
+    #     for row in BOARD_SIZE:
+    #         for col in BOARD_SIZE:
+    #             cell = 
+    #     # sum of max distance of each pion
+    #     return -value
 
 class Game(App):
     def __init__(self, board_size=8, **kwargs):
@@ -166,6 +168,28 @@ class Game(App):
 
     def next_turn(self):
         self.active_player, self.enemy = self.enemy, self.active_player
+
+def isOccupied(cell):
+    return cell.pion is not None
+
+def dist(cell1, cell2):
+    return abs(cell1.i - cell2.i) + abs(cell2.j - cell2.j)
+
+def objective(board, player):
+    value = 0
+    for row in N:
+        for col in N:
+            if (board.is_occupied(i,j)):
+                cell = board[row][col]
+                maxDist = -20  # berikan N poin jika berhasil mencapai goal
+                for goal in board.goal_cells[cell.pion]:
+                    if not isOccupied(goal):
+                        maxDist = max(maxDist, dist(cell, goal))
+                if cell.pion == player.pion:
+                    value += maxDist
+                else:
+                    value -= maxDist
+    return -value
 
 if __name__ == "__main__":
     # pseudocode: https://pastebin.com/n8yMAMhz
