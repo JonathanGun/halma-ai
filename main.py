@@ -57,8 +57,12 @@ class Cell(Button):
         elif selected_cell is None:
             if instance.pion is not None:
                 selected_cell = instance
+                if selected_cell.pion != game.active_player.pion:
+                    selected_cell = None
+                    return
                 (x, y, z, a) = selected_cell.background_color
                 selected_cell.background_color = (x * 1.5, y * 1.5, z * 1.5, a)
+
                 
                 # Highlight reachable cells
                 frm = selected_cell
@@ -236,9 +240,7 @@ class Game(App):
             return False
         return all([
             self.board.valid_cell(to.i, to.j),
-            to.pion is None,
-            not(frm in TARGETS[self.enemy] and to not in TARGETS[self.enemy]),  # from enemy base to normal cell
-            not(frm not in TARGETS[self.active_player] and to in TARGETS[self.active_player]),  # from normal cell to our base
+            to.pion is None
         ])
 
     def move(self, frm, to):
