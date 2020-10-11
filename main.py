@@ -75,6 +75,7 @@ class Cell(Button):
             # Revert frm if move success
             if move_success:
                 frm.background_color = Cell.default_color
+                game.next_turn()
 
             # Revert reachable cells
             reachableCells = game.get_valid_moves(frm)
@@ -175,7 +176,11 @@ class Game(App):
             # Get next cell
             next = (frm.i + dx[k], frm.j + dy[k])
             if self.board.valid_cell(next[0], next[1]) and not self.board.is_occupied(next[0], next[1]):
-                reachableCells.append((next))                
+                if (frm.i, frm.j) in TARGETS[self.active_player.pion] and (next[0], next[1]) not in TARGETS[self.active_player.pion]:
+                    continue
+                if (frm.i, frm.j) not in TARGETS[self.enemy.pion] and (next[0], next[1]) in TARGETS[self.enemy.pion]:
+                    continue
+                reachableCells.append(next)
 
         # For jumping moves
         # Bool array
@@ -217,8 +222,11 @@ class Game(App):
         for i in range(self.board_size):
             for j in range(self.board_size):
                 if visited[i][j] and not (i == frm.i and j == frm.j):
+                    if (frm.i, frm.j) in TARGETS[self.active_player.pion] and (i, j) not in TARGETS[self.active_player.pion]:
+                        continue
+                    if (frm.i, frm.j) not in TARGETS[self.enemy.pion] and (i, j) in TARGETS[self.enemy.pion]:
+                        continue
                     reachableCells.append((i, j))
-
         return reachableCells
 
     def is_valid_move(self, frm, to):
