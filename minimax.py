@@ -171,4 +171,4 @@ class Minimax():
         return best_value, best_move
 
 if __name__ == "__main__":
-    minimax 
+    pass
