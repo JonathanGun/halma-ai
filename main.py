@@ -10,7 +10,6 @@ TARGETS = defaultdict(list)
 BOARD_SIZE = 8
 
 selected_cell = None
-game = None
 
 def enemy(pion):
     return (pion + 1) % 2
@@ -107,11 +106,14 @@ class Tree:
         self.node = state
         self.successors = []
 
-    @property
-    def objective(self):
-        value = 0
-        # sum of max distance of each pion
-        return -value
+    # @property
+    # def objective(self):
+    #     value = 0
+    #     for row in BOARD_SIZE:
+    #         for col in BOARD_SIZE:
+    #             cell = 
+    #     # sum of max distance of each pion
+    #     return -value
 
 class Game(App):
     def __init__(self, board_size=8, **kwargs):
@@ -157,6 +159,9 @@ class Game(App):
 
     def move(self, frm, to):
         if self.is_valid_move(frm, to):
+            # sementara player yg ngecek selalu pemain, karena tdk tw gmn dpt player dari frm 
+            print(objective(self.board,self.active_player))
+            
             print("moved", frm, "to", to)
             to.background_color, frm.background_color = frm.background_color, to.background_color
             to.pion = frm.pion
@@ -166,6 +171,32 @@ class Game(App):
 
     def next_turn(self):
         self.active_player, self.enemy = self.enemy, self.active_player
+
+def dist(cell1, cell2):
+    return abs(cell1.i - cell2.i) + abs(cell2.j - cell2.j)
+
+def objective(board, player):
+    value = 0
+    for row in range(BOARD_SIZE):
+        for col in range(BOARD_SIZE):
+            if (board.is_occupied(row,col)):
+                cell = board.board[row][col]
+                maxDist = -20  # berikan N poin jika berhasil mencapai goal
+                for (iGoal,jGoal) in TARGETS[cell.pion]:
+                    goal=board.board[iGoal][jGoal]
+                    # print("ini cell yang dicek : ", cell)
+                    # print("ini cell goal : ", goal)
+                    if not board.is_occupied(iGoal,jGoal):
+                        maxDist = max(maxDist,dist(cell, goal))
+                        # print(cell, goal, dist(cell,goal))
+                # print("ini pion di ", row,col, "punya ",end="")
+                if cell.pion == player.pion:
+                    # print("pemain dengan value:", value, "ditambah", maxDist)
+                    value += maxDist
+                else:
+                    # print("musuh dengan value :", value, "dikurang", maxDist)
+                    value -= maxDist
+    return -value
 
 if __name__ == "__main__":
     # pseudocode: https://pastebin.com/n8yMAMhz
