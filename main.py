@@ -6,7 +6,6 @@ import enum
 from collections import defaultdict
 from queue import Queue
 
-
 TARGETS = defaultdict(list)
 BOARD_SIZE = 8
 
@@ -131,6 +130,53 @@ class Board(GridLayout):
 class Player:
     def __init__(self, pion):
         self.pion = pion
+
+    def clone_node(self, board)
+
+    def min_value(self, game : Game, alpha, beta, depth, max_depth):
+        best_move = None
+        best_value = float("inf")
+
+        # Kalo udah mentok kirim objective function setempat
+        # Kalo udah menang ya menang...
+        if depth == max_depth or game.board.winner is not None or compute_time > T_LIMIT:
+            return objective(game.board.currentTurn), best_move
+        
+        for row in N:
+            for col in N:
+                frm = game.board[row][col]
+                if frm.piece == player.pion:
+                    # Look through all valid moves
+                    for to in game.get_valid_moves(start_point):
+                        if compute_time > T_LIMIT:
+                            return best_value, best_move
+
+                        frm.pion = None
+                        to.pion = player.pion
+                        val, move = max_value
+                        frm.pion = player.pion
+                        to.pion = None
+
+                        if val < best_value:
+                            best_value = val
+                            best_move = (frm, to)
+                            alpha = min(beta, val)
+
+                        if (beta <= alpha):
+                            return best_value, best_move
+        
+        return best_value, best_move
+    
+    def max_value(self, game : Game, alpha, beta, depth, max_depth):
+        best_move = None
+        best_value = float("-inf")
+
+        if depth == max_depth or game.board.winner is not None or compute_time > T_LIMIT:
+            return objective(game.board.current_turn), best_move
+        
+        for row in
+
+
 
     def minimax(self):
         pass
