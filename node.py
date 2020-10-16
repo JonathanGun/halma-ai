@@ -32,6 +32,11 @@ class Node:
         """
         
         self.config = config
+    
+    def __getitem__(self, item):
+        if (isinstance(item, (int, slice))):
+            return self.config[item]
+        return [self.config[i] for i in item]
 
     def copy(self) -> Node:
         """
