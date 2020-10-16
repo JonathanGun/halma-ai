@@ -16,7 +16,7 @@ dx = [1, 1, 0, -1, -1, -1, 0, 1]
 dy = [0, -1, -1, -1, 0, 1, 1, 1]
 
 def enemy(pion):
-    return (pion + 1) % 2
+    return Pion((pion + 1) % 2)
 
 class Pion(enum.IntEnum):
     RED = 0
@@ -166,14 +166,23 @@ class Game(App):
         return self.board
 
     def check_winner(self):
+        global TARGETS
         for player in [self.active_player, self.enemy]:
+            # print("ini player cok",player)
+            # print(TARGETS)
             for goal in player.targets:
                 if goal.pion != player.pion:
-                    break
+                    # print("ini yang buat gagal:")
+                    # print("goal : ", goal.i,goal.j)
+                    # print("ini pionnya : ", goal.pion)
+                    # print("playernya : ", player.pion)
+                    # print("---------------------------------------------")
+                    break;
             else:
+                # print("Udah ada yang menang : ",player.pion)
                 return player
         return None
-
+        
     def get_valid_moves(self, frm):
         reachableCells = []
         
@@ -260,6 +269,11 @@ class Game(App):
             return False
 
     def next_turn(self):
+        winner = self.check_winner()
+        if( winner is not None):
+            print("INI LOH WINNERNYA : ", winner.pion)
+            print("UUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUuuuuuuuwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu")
+            exit()
         self.active_player, self.enemy = self.enemy, self.active_player
 
 def dist(cell1, cell2):
