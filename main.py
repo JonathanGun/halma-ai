@@ -4,12 +4,16 @@ from kivy.core.window import Window
 from kivy.uix.button import Button
 import enum
 from collections import defaultdict
+from queue import Queue
 
 
 TARGETS = defaultdict(list)
 BOARD_SIZE = 8
 
 selected_cell = None
+
+dx = [1, 1, 0, -1, -1, -1, 0, 1]
+dy = [0, -1, -1, -1, 0, 1, 1, 1]
 
 def enemy(pion):
     return (pion + 1) % 2
@@ -24,6 +28,7 @@ class Cell(Button):
         Pion.BLUE: (0.3, 0.3, 0.9, 1),
     }
     default_color = (0.3, 0.3, 0.3, 1)
+    reachable_color = (1, 1, 0, 1)
 
     def __init__(self, i, j, pion=None, **kwargs):
         self.i = i
@@ -39,19 +44,49 @@ class Cell(Button):
         print("clicked", instance.i, instance.j)
         global selected_cell
         if selected_cell == instance:
+            # Revert reachable cells
+            reachableCells = game.get_valid_moves(selected_cell)
+            for reachableCell in reachableCells:
+                game.board.board[reachableCell[0]][reachableCell[1]].background_color = Cell.default_color
+
             (x, y, z, a) = selected_cell.background_color
             selected_cell.background_color = (x / 1.5, y / 1.5, z / 1.5, a)
             selected_cell = None
+
         elif selected_cell is None:
             if instance.pion is not None:
                 selected_cell = instance
+                if selected_cell.pion != game.active_player.pion:
+                    selected_cell = None
+                    return
                 (x, y, z, a) = selected_cell.background_color
                 selected_cell.background_color = (x * 1.5, y * 1.5, z * 1.5, a)
+
+                
+                # Highlight reachable cells
+                frm = selected_cell
+                reachableCells = game.get_valid_moves(frm)
+                for reachableCell in reachableCells:
+                    game.board.board[reachableCell[0]][reachableCell[1]].background_color = Cell.reachable_color
+                
         else:
             frm = selected_cell
             to = instance
             self._on_press(frm)
-            game.move(frm, to)
+            move_success = game.move(frm, to)
+            
+            # Revert frm if move success
+            if move_success:
+                frm.background_color = Cell.default_color
+                game.next_turn()
+
+            # Revert reachable cells
+            reachableCells = game.get_valid_moves(frm)
+            for reachableCell in reachableCells:
+                if reachableCell[0] == to.i and reachableCell[1] == to.j:
+                    continue
+                else:
+                    game.board.board[reachableCell[0]][reachableCell[1]].background_color = Cell.default_color
 
     def is_inside_board(self):
         return 0 <= self.i < BOARD_SIZE and 0 <= self.j < BOARD_SIZE
@@ -140,21 +175,74 @@ class Game(App):
         return None
 
     def get_valid_moves(self, frm):
-        validCells = []
-        # dfs
-        return validCells
+        reachableCells = []
+        
+        # For normal move
+        for k in range(8):
+            # Get next cell
+            next = (frm.i + dx[k], frm.j + dy[k])
+            if self.board.valid_cell(next[0], next[1]) and not self.board.is_occupied(next[0], next[1]):
+                if (frm.i, frm.j) in TARGETS[self.active_player.pion] and (next[0], next[1]) not in TARGETS[self.active_player.pion]:
+                    continue
+                if (frm.i, frm.j) not in TARGETS[self.enemy.pion] and (next[0], next[1]) in TARGETS[self.enemy.pion]:
+                    continue
+                reachableCells.append(next)
 
-    def get_valid_moves_util(self, frm):
-        validCells = []
-        # dfs
-        return validCells
+        # For jumping moves
+        # Bool array
+        visited = [[False for i in range(self.board_size)] for j in range(self.board_size)]
+
+        # Queue for BFS, only contains (x,y) coordinate and boolean that indicates whether the piece has jumped
+        q = Queue()
+
+        # Insert starting pos and mark it visited
+        q.put((frm.i, frm.j))
+        visited[frm.i][frm.j] = True
+
+        # BFS
+        while not q.empty():
+            cur = q.get()
+            # Iterate all 8 directions
+            for k in range(8):
+                # Get next cell
+                next = (cur[0] + dx[k], cur[1] + dy[k])
+
+                if not self.board.valid_cell(next[0], next[1]):
+                    continue
+                # Jump a piece if this cell is occupied
+                if self.board.is_occupied(next[0], next[1]):
+                    next = (next[0] + dx[k], next[1] + dy[k])
+                else:
+                    continue
+                if not self.board.valid_cell(next[0], next[1]):
+                    continue
+                # Don't insert to queue if cell is visited or occupied
+                if visited[next[0]][next[1]] or self.board.is_occupied(next[0], next[1]):
+                    continue
+                
+                # Pass all check, mark it as reachable and insert to queue if jumped
+                visited[next[0]][next[1]] = True
+                q.put((next[0], next[1]))
+
+        # Return all reachable cells
+        for i in range(self.board_size):
+            for j in range(self.board_size):
+                if visited[i][j] and not (i == frm.i and j == frm.j):
+                    if (frm.i, frm.j) in TARGETS[self.active_player.pion] and (i, j) not in TARGETS[self.active_player.pion]:
+                        continue
+                    if (frm.i, frm.j) not in TARGETS[self.enemy.pion] and (i, j) in TARGETS[self.enemy.pion]:
+                        continue
+                    reachableCells.append((i, j))
+        return reachableCells
 
     def is_valid_move(self, frm, to):
+        reachableCells = self.get_valid_moves(frm)
+        print(reachableCells)
+        if (to.i, to.j) not in reachableCells:
+            return False
         return all([
             self.board.valid_cell(to.i, to.j),
-            to.pion is None,
-            not(frm in TARGETS[self.enemy] and to not in TARGETS[self.enemy]),  # from enemy base to normal cell
-            not(frm not in TARGETS[self.active_player] and to in TARGETS[self.active_player]),  # from normal cell to our base
+            to.pion is None
         ])
 
     def move(self, frm, to):
@@ -166,8 +254,10 @@ class Game(App):
             to.background_color, frm.background_color = frm.background_color, to.background_color
             to.pion = frm.pion
             frm.pion = None
+            return True
         else:
             print("failed to move", frm, "to", to)
+            return False
 
     def next_turn(self):
         self.active_player, self.enemy = self.enemy, self.active_player
