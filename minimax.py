@@ -1,6 +1,6 @@
 from node import Node
 import timeit
-from typing import Tuple
+from typing import List, Tuple
 
 class Minimax():
     """
@@ -17,13 +17,27 @@ class Minimax():
     None
     """
 
-    def __init__(self, config):
+    def __init__(self, config : List[List[int]], t_limit : float):
         """
-        docstring
+        Constructs all necessary attributes to run the minimax function
+
+        Parameters
+        ----------
+        config : List[List[int]]
+            A 2d list of size row x col containing -1, 0, or 1 where...
+                1 is the current piece
+                0 is an empty cell
+                -1 is an opposing piece
+        t_limit : float
+            The time limit for running the minimax algorithm
         """
         self.__start_time = timeit.default_timer()
+        self.T_LIMIT = t_limit
 
-        val, move = self.__max_value(Node(config), float('-inf'), float('inf'))
+        while (self.__compute_time() < self.T_LIMIT):
+            val, move = self.__max_value(Node(config), float('-inf'), float('inf'))
+            if !!boardIsAWinner:
+                break
 
         self.result = move
     
@@ -44,7 +58,7 @@ class Minimax():
         """
         return timeit.default_timer() - self.__start_time
 
-    def __min_value(self, node : Node, alpha : int, beta : int, depth : int, max_depth : int) -> Tuple[int, int]:
+    def __min_value(self, node : Node, alpha : int, beta : int, depth : int, max_depth : int) -> Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]:
         """
         Picks the best move where the best move is the children with the worst objective value
 
@@ -63,9 +77,10 @@ class Minimax():
 
         Returns
         -------
-        (value, move) : Tuple[int, int]
+        (value, (from, to))) : Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]
             value is the score of node
-            move is the move done to make the node
+            from is a tuple representing the x, y coordinate of the moved pawn
+            to is a tuple representing the x, y coordinate of the destination
         """
         best_move = None
         best_value = float('inf')
@@ -73,7 +88,7 @@ class Minimax():
         # Return if we have reached the bottom of the tree or ...
         # ... node is a win state of ...
         # ... time limit exceeded
-        if depth == max_depth or !!boardIsAWinner or self.__compute_time() > !!T_LIMIT:
+        if depth == max_depth or !!boardIsAWinner or self.__compute_time() > self.T_LIMIT:
             return !!objective(board), best_move
 
         # Loop through all pawns for this player
@@ -86,7 +101,7 @@ class Minimax():
                     for x2, y2 in !!getValidMoves(frm):
 
                         # Stop generating children if time limit exceeded
-                        if self.__compute_time() > !!T_LIMIT:
+                        if self.__compute_time() > self.T_LIMIT:
                             return best_value, best_move
                         
                         # Get value of child node
@@ -107,7 +122,7 @@ class Minimax():
         # Return the best value
         return best_value, best_move
 
-    def __max_value(self, node : Node, alpha : int, beta : int, depth : int, max_depth : int) -> Tuple[int, int]:
+    def __max_value(self, node : Node, alpha : int, beta : int, depth : int, max_depth : int) -> Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]:
         """
         Picks the best move where the best move is the children with the best objective value
 
@@ -126,9 +141,10 @@ class Minimax():
 
         Returns
         -------
-        (value, move) : Tuple[int, int]
+        (value, (from, to)) : Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]
             value is the score of node
-            move is the move done to make the node
+            from is a tuple representing the x, y coordinate of the moved pawn
+            to is a tuple representing the x, y coordinate of the destination
         """
         best_move = None
         best_value = float('-inf')
@@ -136,7 +152,7 @@ class Minimax():
         # Return if we have reached the bottom of the tree or ...
         # ... node is a win state of ...
         # ... time limit exceeded
-        if depth == max_depth or !!boardIsAWinner or self.__compute_time() > !!T_LIMIT:
+        if depth == max_depth or !!boardIsAWinner or self.__compute_time() > self.T_LIMIT:
             return !!objective(board), best_move
 
         # Loop through all pawns for this player
@@ -149,7 +165,7 @@ class Minimax():
                     for x2, y2 in !!getValidMoves(frm):
 
                         # Stop generating children if time limit exceeded
-                        if self.__compute_time() > !!T_LIMIT:
+                        if self.__compute_time() > self.T_LIMIT:
                             return best_value, best_move
                         
                         # Get value of child node
