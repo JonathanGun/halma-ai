@@ -67,6 +67,15 @@ class Minimax():
         """
         return timeit.default_timer() - self.__start_time
 
+    def __find_pawns(self, node) -> List[Tuple[int,int]]:
+        # find all child 
+        result = []
+        for i in range(len(node.config)):
+            for j in range(len(node[i])):
+                if (node[i][j] == 1):
+                    result.append((i,j))
+        return result
+
     def __min_value(self, node : Node, alpha : int, beta : int, depth : int, max_depth : int) -> Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]:
         """
         Picks the best move where the best move is the children with the worst objective value
@@ -101,35 +110,34 @@ class Minimax():
             return objective(node, self.targets), best_move
 
         # Loop through all pawns for this player
-        for i in range(len(node.config)):
-            for j in range(len(node[i])):
-                x1, y1 = i, j
-                if (node[i][j] == 1):
+        pawns = self.__find_pawns(node)
+        for (i,j) in pawns:
+            x1, y1 = i, j
+        
+            # Loop through all valid moves for a pawn
+            for x2, y2 in get_valid_moves(node, i, j, self.targets):
 
-                    # Loop through all valid moves for a pawn
-                    for x2, y2 in get_valid_moves(node, i, j, self.targets):
+                # Stop generating children if time limit exceeded
+                if self.__compute_time() > self.T_LIMIT:
+                    return best_value, best_move
+                
+                # Get value of child node
+                child_node = node.copy()
+                child_node.swap(x1, y1, x2, y2)
+                val, move = self.__max_value(child_node, alpha, beta, depth + 1, max_depth)
+                # if (move != None):
+                # if True:
+                #     self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
-                        # Stop generating children if time limit exceeded
-                        if self.__compute_time() > self.T_LIMIT:
-                            return best_value, best_move
-                        
-                        # Get value of child node
-                        child_node = node.copy()
-                        child_node.swap(x1, y1, x2, y2)
-                        val, move = self.__max_value(child_node, alpha, beta, depth + 1, max_depth)
-                        # if (move != None):
-                        # if True:
-                        #     self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
-
-                        # Check if this child node is better
-                        if (val < best_value):
-                            best_value = val
-                            best_move = ((x1, y1), (x2, y2))
-                            beta = min(beta, val)
-                        
-                        # Pruning - check if there is no use generating more children
-                        if (best_value <= alpha):
-                            return best_value, best_move
+                # Check if this child node is better
+                if (val < best_value):
+                    best_value = val
+                    best_move = ((x1, y1), (x2, y2))
+                    beta = min(beta, val)
+                
+                # Pruning - check if there is no use generating more children
+                if (best_value <= alpha):
+                    return best_value, best_move
         
         # Return the best value
         return best_value, best_move
@@ -167,36 +175,35 @@ class Minimax():
         if depth == max_depth or check_winner(node, self.targets) or self.__compute_time() > self.T_LIMIT:
             return objective(node, self.targets), best_move
         # Loop through all pawns for this player
-        for i in range(len(node.config)):
-            for j in range(len(node[i])):
-                x1, y1 = i, j
-                if (node[i][j] == 1):
+        pawns = self.__find_pawns(node)
+        for (i,j) in pawns:
+            x1, y1 = i, j
+    
+            # Loop through all valid moves for a pawn
+            for x2, y2 in get_valid_moves(node, i, j, self.targets):
 
-                    # Loop through all valid moves for a pawn
-                    for x2, y2 in get_valid_moves(node, i, j, self.targets):
+                # Stop generating children if time limit exceeded
+                if self.__compute_time() > self.T_LIMIT:
+                    return best_value, best_move
+                
+                # Get value of child node
+                child_node = node.copy()
+                child_node.swap(x1, y1, x2, y2)
+                val, move = self.__min_value(child_node, alpha, beta, depth + 1, max_depth)
+                # if (move != None):
+                # if True:
+                #     self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
-                        # Stop generating children if time limit exceeded
-                        if self.__compute_time() > self.T_LIMIT:
-                            return best_value, best_move
-                        
-                        # Get value of child node
-                        child_node = node.copy()
-                        child_node.swap(x1, y1, x2, y2)
-                        val, move = self.__min_value(child_node, alpha, beta, depth + 1, max_depth)
-                        # if (move != None):
-                        # if True:
-                        #     self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
+                # Check if this child node is better
+                if (val > best_value):
+                    best_value = val
+                    best_move = ((x1, y1), (x2, y2))
+                    alpha = max(alpha, val)
+                
+                # Pruning - check if there is no use generating more children
+                if (beta <= best_value):
+                    return best_value, best_move
 
-                        # Check if this child node is better
-                        if (val > best_value):
-                            best_value = val
-                            best_move = ((x1, y1), (x2, y2))
-                            alpha = max(alpha, val)
-                        
-                        # Pruning - check if there is no use generating more children
-                        if (beta <= best_value):
-                            return best_value, best_move
-        
         # Return the best value
         return best_value, best_move
 

@@ -62,7 +62,7 @@ def get_valid_moves(board: Node, x: int, y: int, targets):
                 if (x, y) not in targets[enemy] and (i, j) in targets[enemy]:
                     continue
                 reachableCells.append((i, j))
-    print("from", x, y, "can reach", reachableCells)
+    # print("from", x, y, "can reach", reachableCells)
     return reachableCells
 
 # def is_valid_move(frm, to):
