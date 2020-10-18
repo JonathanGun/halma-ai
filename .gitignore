@@ -12,3 +12,5 @@ dist/
 bin/
 
 *.spec
+
+settings.json
