@@ -9,10 +9,6 @@ from minimax import Minimax
 from pion import Pion
 
 # pseudocode: https://pastebin.com/n8yMAMhz
-# TARGETS = defaultdict(list)
-# BOARD_SIZE = DEFAULT_BOARD_SIZE
-# TIMELIMIT = DEFAULT_TIMELIMIT
-# ISRED = DEFAULT_ISRED
 game = None
 
 dx = [1, 1, 0, -1, -1, -1, 0, 1]
@@ -22,8 +18,7 @@ dy = [0, -1, -1, -1, 0, 1, 1, 1]
 class Player:
     def __init__(self, pion, mode):
         self.pion = pion
-        self.mode = mode # Human, Minimax, or LocSearch
-        
+        self.mode = mode  # Human, Minimax, or LocSearch
 
 
 class Game(App):
@@ -40,28 +35,27 @@ class Game(App):
 
         self.init_players(mode)
         super().__init__(**kwargs)
-
-    def build(self):
         self.board = Board(self)
         for cell in self.board:
             self.board.add_widget(cell)
         self.active_player.targets = [self.board.board[i][j] for (i, j) in self.TARGETS[self.active_player.pion]]
         self.enemy.targets = [self.board.board[i][j] for (i, j) in self.TARGETS[self.enemy.pion]]
+
+        if not ISRED:
+            self.next_turn()
+
+    def build(self):
         return self.board
 
     def init_players(self, mode):
-        self.active_player = Player(Pion.RED, 
-            "Human" if (ISRED and mode != "EvE") or mode == "PvP" else 
-            "Minimax" if (ISRED and mode == "EvE") or (not ISRED and mode == "Min") else
-            "LocSearch")
+        self.active_player = Player(Pion.RED,
+                                    "Human" if (ISRED and mode != "EvE") or mode == "PvP" else
+                                    "Minimax" if (ISRED and mode == "EvE") or (not ISRED and mode == "Min") else
+                                    "LocSearch")
         self.enemy = Player(Pion.BLUE,
-            "Human" if (not ISRED and mode != "EvE") or mode == "PvP" else 
-            "Minimax" if (not ISRED and mode == "EvE") or (ISRED and mode == "Min") else
-            "LocSearch")
-        print(ISRED)
-        print(mode)
-        print(self.active_player.mode)
-
+                            "Human" if (not ISRED and mode != "EvE") or mode == "PvP" else
+                            "Minimax" if (not ISRED and mode == "EvE") or (ISRED and mode == "Min") else
+                            "LocSearch")
 
     def check_winner(self):
         for player in [self.active_player, self.enemy]:
@@ -135,7 +129,6 @@ class Game(App):
 
     def is_valid_move(self, frm, to):
         reachableCells = self.get_valid_moves(frm)
-        print(reachableCells)
         if (to.i, to.j) not in reachableCells:
             return False
         return all([
@@ -153,7 +146,7 @@ class Game(App):
             frm.set_highlighted(False)
             to.set_reachable(False)
             to.set_highlighted(False)
-            print("objective = ", objective(self.board, self.active_player, self.TARGETS))
+            # print("objective = ", objective(self.board, self.active_player, self.TARGETS))
             return True
         else:
             print("failed to move", frm, "to", to)
@@ -169,10 +162,9 @@ class Game(App):
 
         # auto move if player is a bot
         if (self.active_player.mode == "Minimax"):
-            (frm_x, frm_y), (to_x, to_y) = Minimax(self.TARGETS, self.board.to_ozer_board(), TIMELIMIT/1000).result
+            (frm_x, frm_y), (to_x, to_y) = Minimax(self.TARGETS, self.board.to_ozer_board(), TIMELIMIT/1000, active_player=Pion.BLUE if ISRED else Pion.RED).result
             self.move(self.board.board[frm_x][frm_y], self.board.board[to_x][to_y])
             self.next_turn()
-
 
 
 def dist(cell1, cell2):
@@ -193,7 +185,7 @@ def objective(board, player, targets):
                     # print("ini cell goal : ", goal)
                     if not board.is_occupied(iGoal, jGoal):
                         maxDist = max(maxDist, dist(cell, goal))
-                        print(cell, goal, dist(cell, goal))
+                        # print(cell, goal, dist(cell, goal))
                     else:
                         win_cells.append(goal.pion == player.pion)
 
@@ -206,6 +198,6 @@ def objective(board, player, targets):
                     # print("pemain dengan value:", value, "ditambah", maxDist)
                     value += maxDist
                 else:
-                    print("musuh dengan value :", value, "dikurang", maxDist)
+                    # print("musuh dengan value :", value, "dikurang", maxDist)
                     value -= maxDist
     return -value

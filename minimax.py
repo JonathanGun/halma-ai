@@ -1,7 +1,10 @@
 from node import Node
 import timeit
 from typing import List, Tuple
+from pion import Pion
 from helper_functions import objective, get_valid_moves, check_winner
+import numpy as np
+
 
 class Minimax():
     """
@@ -18,7 +21,7 @@ class Minimax():
     None
     """
 
-    def __init__(self, targets, config : List[List[int]], t_limit : float):
+    def __init__(self, targets, config: List[List[int]], t_limit: float, active_player):
         """
         Constructs all necessary attributes to run the minimax function
 
@@ -40,16 +43,19 @@ class Minimax():
         best_value = float("-inf")
         best_move = None
         while (self.__compute_time() < self.T_LIMIT):
-            val, move = self.__max_value(Node(config), float('-inf'), float('inf'), 0, max_depth)
+            # print(active_player)
+            val, move = self.__max_value(Node(config), float('-inf'), float('inf'), 0, max_depth, active_player)
             self.__print_node(val, move, 0)
             print("max_depth:", max_depth)
             max_depth += 1
+            if max_depth > 5:
+                break
             if (best_value < val):
                 best_value = val
                 best_move = move
 
         self.result = best_move
-    
+
     def __compute_time(self) -> float:
         """
         Gets how long the object has been alive
@@ -67,16 +73,17 @@ class Minimax():
         """
         return timeit.default_timer() - self.__start_time
 
-    def __find_pawns(self, node) -> List[Tuple[int,int]]:
-        # find all child 
+    def __find_pawns(self, node, active_player) -> List[Tuple[int, int]]:
+        # find all child
         result = []
         for i in range(len(node.config)):
             for j in range(len(node[i])):
-                if (node[i][j] == 1):
-                    result.append((i,j))
+                if (node[i][j] == (1 if active_player == Pion.BLUE else -1)):
+                    result.append((i, j))
+        # print("available pion:", result)
         return result
 
-    def __min_value(self, node : Node, alpha : int, beta : int, depth : int, max_depth : int) -> Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]:
+    def __min_value(self, node: Node, alpha: int, beta: int, depth: int, max_depth: int, active_player) -> Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]:
         """
         Picks the best move where the best move is the children with the worst objective value
 
@@ -110,39 +117,37 @@ class Minimax():
             return objective(node, self.targets), best_move
 
         # Loop through all pawns for this player
-        pawns = self.__find_pawns(node)
-        for (i,j) in pawns:
+        pawns = self.__find_pawns(node, active_player)
+        for (i, j) in pawns:
             x1, y1 = i, j
-        
+
             # Loop through all valid moves for a pawn
-            for x2, y2 in get_valid_moves(node, i, j, self.targets):
+            for x2, y2 in get_valid_moves(node, i, j, self.targets, active_player):
 
                 # Stop generating children if time limit exceeded
                 if self.__compute_time() > self.T_LIMIT:
                     return best_value, best_move
-                
+
                 # Get value of child node
                 child_node = node.copy()
                 child_node.swap(x1, y1, x2, y2)
-                val, move = self.__max_value(child_node, alpha, beta, depth + 1, max_depth)
-                # if (move != None):
-                # if True:
-                #     self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
+                val, move = self.__max_value(child_node, alpha, beta, depth + 1, max_depth, Pion.RED if active_player == Pion.BLUE else Pion.BLUE)
+                self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
                 # Check if this child node is better
                 if (val < best_value):
                     best_value = val
                     best_move = ((x1, y1), (x2, y2))
                     beta = min(beta, val)
-                
+
                 # Pruning - check if there is no use generating more children
                 if (best_value <= alpha):
                     return best_value, best_move
-        
+
         # Return the best value
         return best_value, best_move
 
-    def __max_value(self, node : Node, alpha : int, beta : int, depth : int, max_depth : int) -> Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]:
+    def __max_value(self, node: Node, alpha: int, beta: int, depth: int, max_depth: int, active_player) -> Tuple[int, Tuple[Tuple[int, int], Tuple[int, int]]]:
         """
         Picks the best move where the best move is the children with the best objective value
 
@@ -175,31 +180,29 @@ class Minimax():
         if depth == max_depth or check_winner(node, self.targets) or self.__compute_time() > self.T_LIMIT:
             return objective(node, self.targets), best_move
         # Loop through all pawns for this player
-        pawns = self.__find_pawns(node)
-        for (i,j) in pawns:
+        pawns = self.__find_pawns(node, active_player)
+        for (i, j) in pawns:
             x1, y1 = i, j
-    
+
             # Loop through all valid moves for a pawn
-            for x2, y2 in get_valid_moves(node, i, j, self.targets):
+            for x2, y2 in get_valid_moves(node, i, j, self.targets, active_player):
 
                 # Stop generating children if time limit exceeded
                 if self.__compute_time() > self.T_LIMIT:
                     return best_value, best_move
-                
+
                 # Get value of child node
                 child_node = node.copy()
                 child_node.swap(x1, y1, x2, y2)
-                val, move = self.__min_value(child_node, alpha, beta, depth + 1, max_depth)
-                # if (move != None):
-                # if True:
-                #     self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
+                val, move = self.__min_value(child_node, alpha, beta, depth + 1, max_depth, Pion.RED if active_player == Pion.BLUE else Pion.BLUE)
+                self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
                 # Check if this child node is better
                 if (val > best_value):
                     best_value = val
                     best_move = ((x1, y1), (x2, y2))
                     alpha = max(alpha, val)
-                
+
                 # Pruning - check if there is no use generating more children
                 if (beta <= best_value):
                     return best_value, best_move
@@ -211,20 +214,23 @@ class Minimax():
         """
         docstring
         """
+        if depth > 1:
+            return
         for i in range(depth):
             print("\t", end="")
         print(value, move)
 
+
 if __name__ == "__main__":
     node = [
-        [-1, -1,  0, -1,  0,  0,  0,  0], 
-        [-1, -1,  0,  0,  0,  0,  0,  0], 
+        [-1, -1,  0, -1,  0,  0,  0,  0],
+        [-1, -1,  0,  0,  0,  0,  0,  0],
         [-1, -1,  0, -1,  0,  0,  0,  0],
         [-1,  0,  0,  0,  0,  0,  0,  0],
-        [ 0,  0,  0,  0,  0, -1,  0,  1],
-        [ 0,  0,  0,  0,  0,  0,  1,  1],
-        [ 0,  0,  0,  0,  0,  1,  1,  1],
-        [ 0,  0,  0,  0,  1,  1,  1,  1]]
+        [0,  0,  0,  0,  0, -1,  0,  1],
+        [0,  0,  0,  0,  0,  0,  1,  1],
+        [0,  0,  0,  0,  0,  1,  1,  1],
+        [0,  0,  0,  0,  1,  1,  1,  1]]
     from collections import defaultdict
     from pion import Pion
     from globals import BOARD_SIZE
@@ -240,5 +246,5 @@ if __name__ == "__main__":
                 TARGETS[Pion.BLUE].append((i, j))
             elif i + j > enemy_limit:
                 TARGETS[Pion.RED].append((i, j))
-    
+
     print(Minimax(TARGETS, node, 10).result)

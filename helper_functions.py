@@ -9,10 +9,10 @@ dx = [1, 1, 0, -1, -1, -1, 0, 1]
 dy = [0, -1, -1, -1, 0, 1, 1, 1]
 
 
-def get_valid_moves(board: Node, x: int, y: int, targets):
+def get_valid_moves(board: Node, x: int, y: int, targets, active_player):
     reachableCells = []
-    active_player = Pion.BLUE if ISRED else Pion.RED
-    enemy = Pion.RED if ISRED else Pion.BLUE
+    enemy = Pion.BLUE if active_player == Pion.RED else Pion.RED
+
     # For normal move
     for k in range(8):
         # Get next cell
@@ -23,6 +23,7 @@ def get_valid_moves(board: Node, x: int, y: int, targets):
             if (x, y) not in targets[enemy] and (next[0], next[1]) in targets[enemy]:
                 continue
             reachableCells.append(next)
+
     # For jumping moves
     # Bool array
     visited = [[False for i in range(BOARD_SIZE)] for j in range(BOARD_SIZE)]
@@ -53,6 +54,7 @@ def get_valid_moves(board: Node, x: int, y: int, targets):
             # Pass all check, mark it as reachable and insert to queue if jumped
             visited[next[0]][next[1]] = True
             q.put((next[0], next[1]))
+
     # Return all reachable cells
     for i in range(BOARD_SIZE):
         for j in range(BOARD_SIZE):
@@ -62,22 +64,15 @@ def get_valid_moves(board: Node, x: int, y: int, targets):
                 if (x, y) not in targets[enemy] and (i, j) in targets[enemy]:
                     continue
                 reachableCells.append((i, j))
-    # print("from", x, y, "can reach", reachableCells)
+    # print("[helper_function > get_valid_moves] from", x, y, "can reach", reachableCells)
     return reachableCells
-
-# def is_valid_move(frm, to):
-#     reachableCells = get_valid_moves(frm)
-#     print(reachableCells)
-#     if (to.i, to.j) not in reachableCells:
-#         return False
-#     return all([
-#         board.valid_cell(to.i, to.j),
-#         to.pion is None
-#     ])
 
 
 def dist(cell1x, cell1y, cell2x, cell2y):
     return abs(cell1x - cell2x) + abs(cell1y - cell2y)
+
+
+WIN_SCORE_SCALE = 2
 
 
 def objective(board: Node, targets):
@@ -87,7 +82,7 @@ def objective(board: Node, targets):
         for col in range(BOARD_SIZE):
             if (board.is_occupied(row, col)):
                 cell = Pion.RED if (board[row][col] == 1) != ISRED else Pion.BLUE
-                maxDist = -(BOARD_SIZE-1)*2  # berikan N poin jika berhasil mencapai goal
+                maxDist = -(BOARD_SIZE-1)*WIN_SCORE_SCALE  # berikan N poin jika berhasil mencapai goal
                 win_cells = []
                 # print("ini cell yang dicek : ", cell)
                 for (iGoal, jGoal) in targets[cell]:

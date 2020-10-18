@@ -35,13 +35,3 @@ def add_targets(targets):
 
 
 load_data()
-
-if __name__ == "__main__":
-    print(BOARD_SIZE)
-    print(TIMELIMIT)
-    print(ISRED)
-    # TARGETS[Pion.BLUE].append((1,2))
-    # TARGETS[Pion.BLUE].append((2,2))
-    # TARGETS[Pion.RED].append((3,2))
-    # print(TARGETS)
-    # print((json.loads(json.dumps({'TARGETS': TARGETS})))['TARGETS'])

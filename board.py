@@ -4,6 +4,7 @@ from collections import defaultdict
 from globals import BOARD_SIZE, add_targets
 from cell import Cell
 from pion import Pion
+import numpy as np
 
 
 def enemy(pion):
@@ -14,12 +15,9 @@ class Board(GridLayout):
     def __init__(self, game=None, **kwargs):
         super(Board, self).__init__(**kwargs)
         Window.size = (500, 500)
-        # self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
-        # self._keyboard.bind(on_key_down=self._on_keyboard_down)
         self.cols = BOARD_SIZE
         self.rows = BOARD_SIZE
-        self.board = [[None for j in range(self.cols)]
-                      for i in range(self.rows)]
+        self.board = np.full((self.rows, self.cols), None)
         self.game = game
         self.setup()
 
@@ -60,10 +58,9 @@ class Board(GridLayout):
         return self.board[i][j].pion is not None
 
     def to_ozer_board(self):
-        ls = []
-        for row in self.board:
-            tmp = []
-            for cell in row:
-                tmp.append(1 if cell.pion == self.game.active_player.pion else (-1 if cell.pion == self.game.enemy.pion else 0))
-            ls.append(tmp)
+        ls = self.board.copy()
+        for r in range(len(ls)):
+            for c in range(len(ls[0])):
+                cell = ls[r, c]
+                ls[r, c] = 1 if cell.pion == self.game.active_player.pion else (-1 if cell.pion == self.game.enemy.pion else 0)
         return ls

@@ -25,7 +25,7 @@ if __name__ == "__main__":
     print(f"[Board Size] optional; integer: board size (8, 10, or 16), default = {DEFAULT_BOARD_SIZE}")
     BOARD_SIZE = input(">>> ")
 
-    print(f"[Timelimit] optional; integer: timelimit in miliseconds (100-5000), default = {DEFAULT_TIMELIMIT}")
+    print(f"[Timelimit] optional; integer: timelimit in miliseconds (100-30000), default = {DEFAULT_TIMELIMIT}")
     TIMELIMIT = input(">>> ")
 
     print(f"[Is Red] optional; boolean: player choose red pion, else blue, default = {DEFAULT_ISRED}")
@@ -43,7 +43,7 @@ if __name__ == "__main__":
 
     try:
         TIMELIMIT = int(TIMELIMIT)
-        if not 100 < TIMELIMIT < 5000:
+        if not 100 <= TIMELIMIT <= 30000:
             TIMELIMIT = DEFAULT_TIMELIMIT
     except:
         TIMELIMIT = DEFAULT_TIMELIMIT
