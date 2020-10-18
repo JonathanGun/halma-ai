@@ -1,10 +1,11 @@
 from kivy.app import App
 from kivy.uix.button import Button
 from queue import Queue
-from config import DEFAULT_BOARD_SIZE, DEFAULT_TIMELIMIT, DEFAULT_ISRED
+from config import DEFAULT_BOARD_SIZE, DEFAULT_TIMELIMIT, DEFAULT_ISRED, DEFAULT_MODE
 from globals import BOARD_SIZE, load_data
 from board import Board
 from cell import Cell
+from minimax import Minimax
 from pion import Pion
 
 # pseudocode: https://pastebin.com/n8yMAMhz
@@ -19,15 +20,14 @@ dy = [0, -1, -1, -1, 0, 1, 1, 1]
 
 
 class Player:
-    def __init__(self, pion):
+    def __init__(self, pion, mode):
         self.pion = pion
-
-    def minimax(self):
-        pass
+        self.mode = mode # Human, Minimax, or LocSearch
+        
 
 
 class Game(App):
-    def __init__(self, board_size=DEFAULT_BOARD_SIZE, timelimit=DEFAULT_TIMELIMIT, is_red=DEFAULT_ISRED,  **kwargs):
+    def __init__(self, board_size=DEFAULT_BOARD_SIZE, timelimit=DEFAULT_TIMELIMIT, is_red=DEFAULT_ISRED, mode=DEFAULT_MODE, **kwargs):
         global BOARD_SIZE
         global TIMELIMIT
         global ISRED
@@ -38,8 +38,7 @@ class Game(App):
         self.TARGETS = []
         game = self
 
-        self.active_player = Player(Pion.RED)
-        self.enemy = Player(Pion.BLUE)
+        self.init_players(mode)
         super().__init__(**kwargs)
 
     def build(self):
@@ -49,6 +48,20 @@ class Game(App):
         self.active_player.targets = [self.board.board[i][j] for (i, j) in self.TARGETS[self.active_player.pion]]
         self.enemy.targets = [self.board.board[i][j] for (i, j) in self.TARGETS[self.enemy.pion]]
         return self.board
+
+    def init_players(self, mode):
+        self.active_player = Player(Pion.RED, 
+            "Human" if (ISRED and mode != "EvE") or mode == "PvP" else 
+            "Minimax" if (ISRED and mode == "EvE") or (not ISRED and mode == "Min") else
+            "LocSearch")
+        self.enemy = Player(Pion.BLUE,
+            "Human" if (not ISRED and mode != "EvE") or mode == "PvP" else 
+            "Minimax" if (not ISRED and mode == "EvE") or (ISRED and mode == "Min") else
+            "LocSearch")
+        print(ISRED)
+        print(mode)
+        print(self.active_player.mode)
+
 
     def check_winner(self):
         for player in [self.active_player, self.enemy]:
@@ -153,6 +166,13 @@ class Game(App):
             print(winner.pion, " wins")
             exit()
         self.active_player, self.enemy = self.enemy, self.active_player
+
+        # auto move if player is a bot
+        if (self.active_player.mode == "Minimax"):
+            (frm_x, frm_y), (to_x, to_y) = Minimax(self.TARGETS, self.board.to_ozer_board(), TIMELIMIT/1000).result
+            self.move(self.board.board[frm_x][frm_y], self.board.board[to_x][to_y])
+            self.next_turn()
+
 
 
 def dist(cell1, cell2):

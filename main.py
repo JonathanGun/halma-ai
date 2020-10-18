@@ -2,7 +2,7 @@ import atexit
 from collections import defaultdict
 import json
 import os
-from config import DEFAULT_BOARD_SIZE, DEFAULT_TIMELIMIT, DEFAULT_ISRED
+from config import DEFAULT_BOARD_SIZE, DEFAULT_TIMELIMIT, DEFAULT_ISRED, DEFAULT_MODE
 
 
 def remove_temporary_settings():
@@ -28,8 +28,11 @@ if __name__ == "__main__":
     print(f"[Timelimit] optional; integer: timelimit in miliseconds (100-5000), default = {DEFAULT_TIMELIMIT}")
     TIMELIMIT = input(">>> ")
 
-    print(f"[Is Red] optional; boolean: choose red pion, else blue, default = {DEFAULT_ISRED}")
+    print(f"[Is Red] optional; boolean: player choose red pion, else blue, default = {DEFAULT_ISRED}")
     ISRED = input(">>> ")
+
+    print(f"[PvX] optional; string: choose PvP (Human vs Human); Min (Human vs Minimax Bot); Loc (Human vs Local Search Bot); EvE (Bot vs Bot), default = {DEFAULT_MODE}")
+    MODE = input(">>> ")
 
     try:
         BOARD_SIZE = int(BOARD_SIZE)
@@ -46,9 +49,12 @@ if __name__ == "__main__":
         TIMELIMIT = DEFAULT_TIMELIMIT
 
     try:
-        ISRED = bool(ISRED)
+        ISRED = ISRED.lower()[0] == "t"
     except:
         ISRED = DEFAULT_ISRED
+
+    if (MODE not in ["PvP", "Min", "Loc", "EvE"]):
+        MODE = DEFAULT_MODE
 
     with open("settings.json", "w") as settings:
         # settings.write(json.dumps({'BOARD_SIZE' : BOARD_SIZE, 'TIMELIMIT' : TIMELIMIT, 'ISRED' : ISRED, 'TARGETS' : None}))
@@ -56,5 +62,5 @@ if __name__ == "__main__":
         atexit.register(remove_temporary_settings)
 
     from app import Game
-    game = Game(board_size=BOARD_SIZE, timelimit=TIMELIMIT, is_red=ISRED)
+    game = Game(board_size=BOARD_SIZE, timelimit=TIMELIMIT, is_red=ISRED, mode=MODE)
     game.run()
