@@ -36,7 +36,7 @@ class Minimax():
         self.T_LIMIT = t_limit
         self.targets = targets
 
-        max_depth = 1
+        max_depth = 2
         while (self.__compute_time() < self.T_LIMIT):
             val, move = self.__max_value(Node(config), float('-inf'), float('inf'), 0, max_depth)
             self.__print_node(val, move, 0)
@@ -105,6 +105,7 @@ class Minimax():
                 if (node[i][j] == 1):
 
                     # Loop through all valid moves for a pawn
+                    print("get_valid_moves =", get_valid_moves(node, i, j, self.targets))
                     for x2, y2 in get_valid_moves(node, i, j, self.targets):
 
                         # Stop generating children if time limit exceeded
@@ -164,7 +165,7 @@ class Minimax():
         # ... time limit exceeded
         if depth == max_depth or check_winner(node, self.targets) or self.__compute_time() > self.T_LIMIT:
             return objective(node, self.targets), best_move
-
+        node.print_debug()
         # Loop through all pawns for this player
         for i in range(len(node.config)):
             for j in range(len(node[i])):
@@ -172,6 +173,7 @@ class Minimax():
                 if (node[i][j] == 1):
 
                     # Loop through all valid moves for a pawn
+                    print("get_valid_moves =", get_valid_moves(node, i, j, self.targets))
                     for x2, y2 in get_valid_moves(node, i, j, self.targets):
 
                         # Stop generating children if time limit exceeded
@@ -209,11 +211,11 @@ class Minimax():
 
 if __name__ == "__main__":
     node = [
-        [-1, -1, -1, -1,  0,  0,  0,  0], 
-        [-1, -1, -1,  0,  0,  0,  0,  0], 
-        [-1, -1,  0,  0,  0,  0,  0,  0],
+        [-1, -1,  0, -1,  0,  0,  0,  0], 
+        [-1, -1,  0,  0,  0,  0,  0,  0], 
+        [-1, -1,  0, -1,  0,  0,  0,  0],
         [-1,  0,  0,  0,  0,  0,  0,  0],
-        [ 0,  0,  0,  0,  0,  0,  0,  1],
+        [ 0,  0,  0,  0,  0, -1,  0,  1],
         [ 0,  0,  0,  0,  0,  0,  1,  1],
         [ 0,  0,  0,  0,  0,  1,  1,  1],
         [ 0,  0,  0,  0,  1,  1,  1,  1]]
@@ -233,4 +235,4 @@ if __name__ == "__main__":
             elif i + j > enemy_limit:
                 TARGETS[Pion.RED].append((i, j))
     
-    print(Minimax(TARGETS, node, 0.25).result)
+    print(Minimax(TARGETS, node, 2).result)

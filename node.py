@@ -1,4 +1,5 @@
 from __future__ import annotations
+from copy import deepcopy
 from typing import List
 
 class Node:
@@ -51,7 +52,7 @@ class Node:
         new_node : int
             The new node with same configurations
         """
-        return Node(self.config)
+        return Node(deepcopy(self.config))
     
     def swap(self, x1 : int, y1 : int, x2 : int, y2 : int) -> None:
         """

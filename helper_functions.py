@@ -155,8 +155,8 @@ if __name__ == "__main__":
 
     # TESTING GET VALIDE MOVES FUNCTION
     print(get_valid_moves(node, 5, 0, TARGETS))
-    print(get_valid_moves(node, 1, 1, TARGETS))
-    print(get_valid_moves(node, 0, 0, TARGETS))
+    print(get_valid_moves(node, 6, 6, TARGETS))
+    print(get_valid_moves(node, 7, 7, TARGETS))
     
     # TESTING WIN FUNCTION
     node.swap(0,0, 7, 7)
