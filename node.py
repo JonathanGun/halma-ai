@@ -73,6 +73,45 @@ class Node:
         None
         """
         self.config[x1][y1], self.config[x2][y2] = self.config[x2][y2], self.config[x1][y1]
+    
+    def valid_cell(self, x : int, y : int) -> bool:
+        """
+        Returns true if the cell is a valid cell
+
+        Parameters
+        ----------
+        x : int
+            The 0-based x position of the cell
+        y : int
+            The 0-based y position of the cell
+
+        Returns
+        -------
+        is_occupied : book
+            True if the cell is within the bounds of the grid
+        """
+        if (x >= 0 and x < len(self.config)):
+            if (y >= 0 and y < len(self.config[x])):
+                return True
+        return False
+    
+    def is_occupied(self, x : int, y : int) -> bool:
+        """
+        Returns true if the selected cell is occupied
+
+        Parameters
+        ----------
+        x : int
+            The 0-based x position of the cell
+        y : int
+            The 0-based y position of the cell
+
+        Returns
+        -------
+        is_occupied : bool
+            True if the cell is occupied
+        """
+        return self.valid_cell(x, y) and self.config[x][y] != 0
 
     def print_debug(self) -> None:
         """

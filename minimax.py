@@ -1,6 +1,7 @@
 from node import Node
 import timeit
 from typing import List, Tuple
+from helper_functions import objective, get_valid_moves, check_winner
 
 class Minimax():
     """
@@ -17,7 +18,7 @@ class Minimax():
     None
     """
 
-    def __init__(self, config : List[List[int]], t_limit : float):
+    def __init__(self, targets, config : List[List[int]], t_limit : float):
         """
         Constructs all necessary attributes to run the minimax function
 
@@ -33,11 +34,17 @@ class Minimax():
         """
         self.__start_time = timeit.default_timer()
         self.T_LIMIT = t_limit
+        self.targets = targets
 
+        max_depth = 1
         while (self.__compute_time() < self.T_LIMIT):
-            val, move = self.__max_value(Node(config), float('-inf'), float('inf'))
-            if !!boardIsAWinner:
-                break
+            val, move = self.__max_value(Node(config), float('-inf'), float('inf'), 0, max_depth)
+            self.__print_node(val, move, 0)
+            max_depth += 1
+
+            # Mager implemetnya :v
+            # if check_winner():
+            #     break
 
         self.result = move
     
@@ -88,17 +95,17 @@ class Minimax():
         # Return if we have reached the bottom of the tree or ...
         # ... node is a win state of ...
         # ... time limit exceeded
-        if depth == max_depth or !!boardIsAWinner or self.__compute_time() > self.T_LIMIT:
-            return !!objective(board), best_move
+        if depth == max_depth or check_winner(node, self.targets) or self.__compute_time() > self.T_LIMIT:
+            return objective(node, self.targets), best_move
 
         # Loop through all pawns for this player
-        for row, i in node:
-            for data, j in row:
+        for i in range(len(node.config)):
+            for j in range(len(node[i])):
                 x1, y1 = i, j
-                if (config[i][j] == 1):
+                if (node[i][j] == 1):
 
                     # Loop through all valid moves for a pawn
-                    for x2, y2 in !!getValidMoves(frm):
+                    for x2, y2 in get_valid_moves(node, i, j, self.targets):
 
                         # Stop generating children if time limit exceeded
                         if self.__compute_time() > self.T_LIMIT:
@@ -108,6 +115,9 @@ class Minimax():
                         child_node = node.copy()
                         child_node.swap(x1, y1, x2, y2)
                         val, move = self.__max_value(child_node, alpha, beta, depth + 1, max_depth)
+                        # if (move != None):
+                        if True:
+                            self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
                         # Check if this child node is better
                         if (val < best_value):
@@ -152,17 +162,17 @@ class Minimax():
         # Return if we have reached the bottom of the tree or ...
         # ... node is a win state of ...
         # ... time limit exceeded
-        if depth == max_depth or !!boardIsAWinner or self.__compute_time() > self.T_LIMIT:
-            return !!objective(board), best_move
+        if depth == max_depth or check_winner(node, self.targets) or self.__compute_time() > self.T_LIMIT:
+            return objective(node, self.targets), best_move
 
         # Loop through all pawns for this player
-        for row, i in node:
-            for data, j in row:
+        for i in range(len(node.config)):
+            for j in range(len(node[i])):
                 x1, y1 = i, j
-                if (config[i][j] == 1):
+                if (node[i][j] == 1):
 
                     # Loop through all valid moves for a pawn
-                    for x2, y2 in !!getValidMoves(frm):
+                    for x2, y2 in get_valid_moves(node, i, j, self.targets):
 
                         # Stop generating children if time limit exceeded
                         if self.__compute_time() > self.T_LIMIT:
@@ -172,6 +182,9 @@ class Minimax():
                         child_node = node.copy()
                         child_node.swap(x1, y1, x2, y2)
                         val, move = self.__min_value(child_node, alpha, beta, depth + 1, max_depth)
+                        # if (move != None):
+                        if True:
+                            self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
                         # Check if this child node is better
                         if (val > best_value):
@@ -186,5 +199,38 @@ class Minimax():
         # Return the best value
         return best_value, best_move
 
+    def __print_node(self, value, move, depth):
+        """
+        docstring
+        """
+        for i in range(depth):
+            print("\t", end="")
+        print(value, move)
+
 if __name__ == "__main__":
-    pass
+    node = [
+        [-1, -1, -1, -1,  0,  0,  0,  0], 
+        [-1, -1, -1,  0,  0,  0,  0,  0], 
+        [-1, -1,  0,  0,  0,  0,  0,  0],
+        [-1,  0,  0,  0,  0,  0,  0,  0],
+        [ 0,  0,  0,  0,  0,  0,  0,  1],
+        [ 0,  0,  0,  0,  0,  0,  1,  1],
+        [ 0,  0,  0,  0,  0,  1,  1,  1],
+        [ 0,  0,  0,  0,  1,  1,  1,  1]]
+    from collections import defaultdict
+    from pion import Pion
+    from globals import BOARD_SIZE
+    TARGETS = defaultdict(list)
+    for i in range(BOARD_SIZE):
+        for j in range(BOARD_SIZE):
+            our_limit, enemy_limit = {
+                8: (4, 10),
+                10: (5, 13),
+                16: (6, 24)
+            }.get(BOARD_SIZE)
+            if i + j < our_limit:
+                TARGETS[Pion.BLUE].append((i, j))
+            elif i + j > enemy_limit:
+                TARGETS[Pion.RED].append((i, j))
+    
+    print(Minimax(TARGETS, node, 0.25).result)
