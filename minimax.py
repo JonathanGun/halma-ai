@@ -33,20 +33,22 @@ class Minimax():
             The time limit for running the minimax algorithm
         """
         self.__start_time = timeit.default_timer()
-        self.T_LIMIT = t_limit
+        self.T_LIMIT = t_limit - 0.0025  #
         self.targets = targets
 
         max_depth = 2
+        best_value = float("-inf")
+        best_move = None
         while (self.__compute_time() < self.T_LIMIT):
             val, move = self.__max_value(Node(config), float('-inf'), float('inf'), 0, max_depth)
             self.__print_node(val, move, 0)
+            print("max_depth:", max_depth)
             max_depth += 1
+            if (best_value < val):
+                best_value = val
+                best_move = move
 
-            # Mager implemetnya :v
-            # if check_winner():
-            #     break
-
-        self.result = move
+        self.result = best_move
     
     def __compute_time(self) -> float:
         """
@@ -105,7 +107,6 @@ class Minimax():
                 if (node[i][j] == 1):
 
                     # Loop through all valid moves for a pawn
-                    print("get_valid_moves =", get_valid_moves(node, i, j, self.targets))
                     for x2, y2 in get_valid_moves(node, i, j, self.targets):
 
                         # Stop generating children if time limit exceeded
@@ -117,8 +118,8 @@ class Minimax():
                         child_node.swap(x1, y1, x2, y2)
                         val, move = self.__max_value(child_node, alpha, beta, depth + 1, max_depth)
                         # if (move != None):
-                        if True:
-                            self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
+                        # if True:
+                        #     self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
                         # Check if this child node is better
                         if (val < best_value):
@@ -165,7 +166,6 @@ class Minimax():
         # ... time limit exceeded
         if depth == max_depth or check_winner(node, self.targets) or self.__compute_time() > self.T_LIMIT:
             return objective(node, self.targets), best_move
-        node.print_debug()
         # Loop through all pawns for this player
         for i in range(len(node.config)):
             for j in range(len(node[i])):
@@ -173,7 +173,6 @@ class Minimax():
                 if (node[i][j] == 1):
 
                     # Loop through all valid moves for a pawn
-                    print("get_valid_moves =", get_valid_moves(node, i, j, self.targets))
                     for x2, y2 in get_valid_moves(node, i, j, self.targets):
 
                         # Stop generating children if time limit exceeded
@@ -185,8 +184,8 @@ class Minimax():
                         child_node.swap(x1, y1, x2, y2)
                         val, move = self.__min_value(child_node, alpha, beta, depth + 1, max_depth)
                         # if (move != None):
-                        if True:
-                            self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
+                        # if True:
+                        #     self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
                         # Check if this child node is better
                         if (val > best_value):
@@ -235,4 +234,4 @@ if __name__ == "__main__":
             elif i + j > enemy_limit:
                 TARGETS[Pion.RED].append((i, j))
     
-    print(Minimax(TARGETS, node, 2).result)
+    print(Minimax(TARGETS, node, 10).result)
