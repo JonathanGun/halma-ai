@@ -7,6 +7,7 @@ from globals import BOARD_SIZE, load_data
 from board import Board
 from cell import Cell
 from minimax import Minimax
+from minimaxLocalSearch import MinimaxLocalSearch
 from pion import Pion
 
 # pseudocode: https://pastebin.com/n8yMAMhz
@@ -44,7 +45,9 @@ class Game(App):
 
         # if not ISRED:
         #     self.next_turn()
-        Thread(target=self.run_bot).start()
+        thread = Thread(target=self.run_bot)
+        thread.start()
+        print(thread.name)
 
     def build(self):
         return self.board
@@ -163,13 +166,18 @@ class Game(App):
         self.active_player, self.enemy = self.enemy, self.active_player
 
         # auto move if player is a bot
-        Thread(target=self.run_bot).start()
+        thread = Thread(target=self.run_bot)
+        thread.start()
+        print(thread.name)
 
     def run_bot(self):
-        print("test")
         if (self.active_player.mode == "Minimax"):
-            self.board.do_layout()
-            (frm_x, frm_y), (to_x, to_y) = Minimax(self.TARGETS, self.board.to_ozer_board(), TIMELIMIT/1000, active_player=Pion.BLUE if ISRED else Pion.RED).result
+            (frm_x, frm_y), (to_x, to_y) = Minimax(self.TARGETS, self.board.to_ozer_board(), TIMELIMIT/1000, active_player=self.active_player.pion).result
+            self.move(self.board.board[frm_x][frm_y], self.board.board[to_x][to_y])
+            self.next_turn()
+
+        elif (self.active_player.mode == "LocSearch"):
+            (frm_x, frm_y), (to_x, to_y) = MinimaxLocalSearch(self.TARGETS, self.board.to_ozer_board(), TIMELIMIT/1000, active_player=self.active_player.pion, n_restart=5).result
             self.move(self.board.board[frm_x][frm_y], self.board.board[to_x][to_y])
             self.next_turn()
 

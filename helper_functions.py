@@ -75,18 +75,17 @@ def dist(cell1x, cell1y, cell2x, cell2y):
 WIN_SCORE_SCALE = 2
 
 
-def objective(board: Node, targets):
+def objective(board: Node, targets, player : Pion):
     value = 0
-    player = Pion.BLUE if ISRED else Pion.RED
     for row in range(BOARD_SIZE):
         for col in range(BOARD_SIZE):
             if (board.is_occupied(row, col)):
-                cell = Pion.RED if (board[row][col] == 1) != ISRED else Pion.BLUE
+                cell = Pion.RED if (board[row][col] == 1) == (player == Pion.RED) else Pion.BLUE
                 maxDist = -(BOARD_SIZE-1)*WIN_SCORE_SCALE  # berikan N poin jika berhasil mencapai goal
                 win_cells = []
                 # print("ini cell yang dicek : ", cell)
                 for (iGoal, jGoal) in targets[cell]:
-                    goal = Pion.RED if (board[iGoal][jGoal] == 1) != ISRED else Pion.BLUE
+                    goal = Pion.RED if (board[iGoal][jGoal] == 1) == (player == Pion.RED) else Pion.BLUE
                     # print("ini cell goal : ", goal)
                     if not board.is_occupied(iGoal, jGoal):
                         maxDist = max(maxDist, dist(row, col, iGoal, jGoal))
@@ -108,11 +107,10 @@ def objective(board: Node, targets):
     return -value
 
 
-def check_winner(board: Node, targets):
-    player = Pion.BLUE if ISRED else Pion.RED
+def check_winner(board: Node, targets, player):
     goal = targets[player]
     for x, y in goal:
-        cell = Pion.RED if (board[x][y] == 1) != ISRED else Pion.BLUE
+        cell = Pion.RED if (board[x][y] == 1) == (player == Pion.RED) else Pion.BLUE
         if cell != player or board[x][y] == 0:
             break
     else:

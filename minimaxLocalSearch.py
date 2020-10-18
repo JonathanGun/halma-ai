@@ -4,13 +4,13 @@ from minimax import Minimax
 import random
 
 class MinimaxLocalSearch(Minimax):
-    def __init__(self, n_restart: int = None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, targets, config: List[List[int]], t_limit: float, active_player, n_restart: int = None):
+        super().__init__(targets, config, t_limit, active_player)
         self.n_restart = n_restart
         
-    def __find_pawns(self, node) -> List[Tuple[int,int]]:
-        result = super().__find_pawns(node)
-        return random.shuffle(result)[:n_restart]
+    def __find_pawns(self, node, active_player) -> List[Tuple[int,int]]:
+        result = super().__find_pawns(node, active_player)
+        return random.shuffle(result)[:self.n_restart]
 
 if __name__ == "__main__":
     node = [

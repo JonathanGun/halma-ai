@@ -45,8 +45,8 @@ class Minimax():
         best_move = None
         while (self.__compute_time() < self.T_LIMIT):
             val, move = self.__max_value(Node(config), float('-inf'), float('inf'), 0, max_depth, active_player)
-            self.__print_node(val, move, 0)
-            print("max_depth:", max_depth)
+            # self.__print_node(val, move, 0)
+            # print("max_depth:", max_depth)
             max_depth += 1
             if max_depth > 5:
                 break
@@ -113,8 +113,8 @@ class Minimax():
         # Return if we have reached the bottom of the tree or ...
         # ... node is a win state of ...
         # ... time limit exceeded
-        if depth == max_depth or check_winner(node, self.targets) or self.__compute_time() > self.T_LIMIT:
-            return objective(node, self.targets), best_move
+        if depth == max_depth or check_winner(node, self.targets, active_player) or self.__compute_time() > self.T_LIMIT:
+            return objective(node, self.targets, self.bot), best_move
 
         # Loop through all pawns for this player
         pawns = self.__find_pawns(node, active_player)
@@ -132,7 +132,7 @@ class Minimax():
                 child_node = node.copy()
                 child_node.swap(x1, y1, x2, y2)
                 val, move = self.__max_value(child_node, alpha, beta, depth + 1, max_depth, Pion.RED if active_player == Pion.BLUE else Pion.BLUE)
-                self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
+                # self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
                 # Check if this child node is better
                 if (val < best_value):
@@ -177,8 +177,8 @@ class Minimax():
         # Return if we have reached the bottom of the tree or ...
         # ... node is a win state of ...
         # ... time limit exceeded
-        if depth == max_depth or check_winner(node, self.targets) or self.__compute_time() > self.T_LIMIT:
-            return objective(node, self.targets), best_move
+        if depth == max_depth or check_winner(node, self.targets, active_player) or self.__compute_time() > self.T_LIMIT:
+            return objective(node, self.targets, self.bot), best_move
         # Loop through all pawns for this player
         pawns = self.__find_pawns(node, active_player)
         for (i, j) in pawns:
@@ -195,7 +195,7 @@ class Minimax():
                 child_node = node.copy()
                 child_node.swap(x1, y1, x2, y2)
                 val, move = self.__min_value(child_node, alpha, beta, depth + 1, max_depth, Pion.RED if active_player == Pion.BLUE else Pion.BLUE)
-                self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
+                # self.__print_node(val, ((x1, y1), (x2, y2)), depth + 1)
 
                 # Check if this child node is better
                 if (val > best_value):
