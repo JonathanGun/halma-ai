@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.uix.button import Button
+from threading import Thread
 from queue import Queue
 from config import DEFAULT_BOARD_SIZE, DEFAULT_TIMELIMIT, DEFAULT_ISRED, DEFAULT_MODE
 from globals import BOARD_SIZE, load_data
@@ -43,7 +44,7 @@ class Game(App):
 
         # if not ISRED:
         #     self.next_turn()
-        self.run_bot()
+        Thread(target=self.run_bot).start()
 
     def build(self):
         return self.board
@@ -162,9 +163,10 @@ class Game(App):
         self.active_player, self.enemy = self.enemy, self.active_player
 
         # auto move if player is a bot
-        self.run_bot()
+        Thread(target=self.run_bot).start()
 
     def run_bot(self):
+        print("test")
         if (self.active_player.mode == "Minimax"):
             self.board.do_layout()
             (frm_x, frm_y), (to_x, to_y) = Minimax(self.TARGETS, self.board.to_ozer_board(), TIMELIMIT/1000, active_player=Pion.BLUE if ISRED else Pion.RED).result

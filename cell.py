@@ -70,50 +70,51 @@ class Cell(Button):
         print("clicked", instance.i, instance.j)
         global selected_cell
 
-        # First click
-        if selected_cell is None:
-            if instance.pion == self.game.active_player.pion:
-                instance.set_selected(True)
+        if self.game.active_player.mode == "Human":
+            # First click
+            if selected_cell is None:
+                if instance.pion == self.game.active_player.pion:
+                    instance.set_selected(True)
 
-                # Highlight selected cell
-                selected_cell.set_highlighted(True)
+                    # Highlight selected cell
+                    selected_cell.set_highlighted(True)
 
-                # Highlight reachable cells
-                frm = selected_cell
-                reachableCells = self.game.get_valid_moves(frm)
-                for reachableCell in reachableCells:
-                    self.game.board.board[reachableCell[0]][reachableCell[1]].set_reachable(True)
+                    # Highlight reachable cells
+                    frm = selected_cell
+                    reachableCells = self.game.get_valid_moves(frm)
+                    for reachableCell in reachableCells:
+                        self.game.board.board[reachableCell[0]][reachableCell[1]].set_reachable(True)
 
-        # Second click
-        else:
-            if selected_cell == instance:
-                # Revert reachable cells
-                reachableCells = self.game.get_valid_moves(selected_cell)
-                for reachableCell in reachableCells:
-                    self.game.board.board[reachableCell[0]][reachableCell[1]].set_reachable(False)
-
-                selected_cell = None
-                instance.set_selected(False)
-
+            # Second click
             else:
-                frm = selected_cell
-                to = instance
-                self._on_press(frm)
-                move_success = self.game.move(frm, to)
-
-                # Revert reachable cells
-                reachableCells = self.game.get_valid_moves(frm)
-                for reachableCell in reachableCells:
-                    if reachableCell[0] == to.i and reachableCell[1] == to.j:
-                        continue
-                    else:
+                if selected_cell == instance:
+                    # Revert reachable cells
+                    reachableCells = self.game.get_valid_moves(selected_cell)
+                    for reachableCell in reachableCells:
                         self.game.board.board[reachableCell[0]][reachableCell[1]].set_reachable(False)
 
-                # Revert frm if move success
-                if move_success:
-                    self.game.next_turn()
+                    selected_cell = None
+                    instance.set_selected(False)
+
                 else:
-                    self._on_press(to)
+                    frm = selected_cell
+                    to = instance
+                    self._on_press(frm)
+                    move_success = self.game.move(frm, to)
+
+                    # Revert reachable cells
+                    reachableCells = self.game.get_valid_moves(frm)
+                    for reachableCell in reachableCells:
+                        if reachableCell[0] == to.i and reachableCell[1] == to.j:
+                            continue
+                        else:
+                            self.game.board.board[reachableCell[0]][reachableCell[1]].set_reachable(False)
+
+                    # Revert frm if move success
+                    if move_success:
+                        self.game.next_turn()
+                    else:
+                        self._on_press(to)
 
     def is_inside_board(self):
         return 0 <= self.i < BOARD_SIZE and 0 <= self.j < BOARD_SIZE
