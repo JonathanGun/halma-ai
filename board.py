@@ -5,11 +5,13 @@ from globals import BOARD_SIZE, add_targets
 from cell import Cell
 from pion import Pion
 
+
 def enemy(pion):
     return Pion((pion + 1) % 2)
 
+
 class Board(GridLayout):
-    def __init__(self, game = None, **kwargs):
+    def __init__(self, game=None, **kwargs):
         super(Board, self).__init__(**kwargs)
         Window.size = (500, 500)
         # self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
@@ -56,3 +58,12 @@ class Board(GridLayout):
 
     def is_occupied(self, i, j):
         return self.board[i][j].pion is not None
+
+    def to_ozer_board(self):
+        ls = []
+        for row in self.board:
+            tmp = []
+            for cell in row:
+                tmp.append(1 if cell.pion == self.game.active_player.pion else (-1 if cell.pion == self.game.enemy.pion else 0))
+            ls.append(tmp)
+        return ls

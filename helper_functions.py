@@ -8,7 +8,8 @@ from pion import Pion
 dx = [1, 1, 0, -1, -1, -1, 0, 1]
 dy = [0, -1, -1, -1, 0, 1, 1, 1]
 
-def get_valid_moves(board : Node, x : int, y : int, targets):
+
+def get_valid_moves(board: Node, x: int, y: int, targets):
     reachableCells = []
     active_player = Pion.BLUE if ISRED else Pion.RED
     enemy = Pion.RED if ISRED else Pion.BLUE
@@ -61,6 +62,7 @@ def get_valid_moves(board : Node, x : int, y : int, targets):
                 if (x, y) not in targets[enemy] and (i, j) in targets[enemy]:
                     continue
                 reachableCells.append((i, j))
+    print("from", x, y, "can reach", reachableCells)
     return reachableCells
 
 # def is_valid_move(frm, to):
@@ -73,10 +75,12 @@ def get_valid_moves(board : Node, x : int, y : int, targets):
 #         to.pion is None
 #     ])
 
+
 def dist(cell1x, cell1y, cell2x, cell2y):
     return abs(cell1x - cell2x) + abs(cell1y - cell2y)
 
-def objective(board : Node, targets):
+
+def objective(board: Node, targets):
     value = 0
     player = Pion.BLUE if ISRED else Pion.RED
     for row in range(BOARD_SIZE):
@@ -108,7 +112,8 @@ def objective(board : Node, targets):
                     value -= maxDist
     return -value
 
-def check_winner(board : Node, targets):
+
+def check_winner(board: Node, targets):
     player = Pion.BLUE if ISRED else Pion.RED
     goal = targets[player]
     for x, y in goal:
@@ -119,16 +124,17 @@ def check_winner(board : Node, targets):
         return True
     return False
 
+
 if __name__ == "__main__":
     node = Node([
-        [-1, -1, -1, -1,  0,  0,  0,  0], 
-        [-1, -1, -1,  0,  0,  0,  0,  0], 
+        [-1, -1, -1, -1,  0,  0,  0,  0],
+        [-1, -1, -1,  0,  0,  0,  0,  0],
         [-1, -1,  0,  0,  0,  0,  0,  0],
         [-1,  0,  0,  0,  0,  0,  0,  0],
-        [ 0,  0,  0,  0,  0,  0,  0,  1],
-        [ 0,  0,  0,  0,  0,  0,  1,  1],
-        [ 0,  0,  0,  0,  0,  1,  1,  1],
-        [ 0,  0,  0,  0,  1,  1,  1,  1]])
+        [0,  0,  0,  0,  0,  0,  0,  1],
+        [0,  0,  0,  0,  0,  0,  1,  1],
+        [0,  0,  0,  0,  0,  1,  1,  1],
+        [0,  0,  0,  0,  1,  1,  1,  1]])
     from collections import defaultdict
     TARGETS = defaultdict(list)
     for i in range(BOARD_SIZE):
@@ -146,10 +152,10 @@ if __name__ == "__main__":
     # TESTING OBJECTIVE FUNCTION
     node.print_debug()
     print(objective(node, TARGETS))
-    node.swap(3,0, 4, 0)
+    node.swap(3, 0, 4, 0)
     node.print_debug()
     print(objective(node, TARGETS))
-    node.swap(4,0, 5, 0)
+    node.swap(4, 0, 5, 0)
     node.print_debug()
     print(objective(node, TARGETS))
 
@@ -157,18 +163,18 @@ if __name__ == "__main__":
     print(get_valid_moves(node, 5, 0, TARGETS))
     print(get_valid_moves(node, 6, 6, TARGETS))
     print(get_valid_moves(node, 7, 7, TARGETS))
-    
+
     # TESTING WIN FUNCTION
-    node.swap(0,0, 7, 7)
-    node.swap(0,1, 7, 6)
-    node.swap(0,2, 7, 5)
-    node.swap(0,3, 7, 4)
-    node.swap(1,0, 6, 7)
-    node.swap(1,1, 6, 6)
-    node.swap(1,2, 6, 5)
-    node.swap(2,0, 5, 7)
-    node.swap(2,1, 5, 6)
-    node.swap(5,0, 4, 7)
+    node.swap(0, 0, 7, 7)
+    node.swap(0, 1, 7, 6)
+    node.swap(0, 2, 7, 5)
+    node.swap(0, 3, 7, 4)
+    node.swap(1, 0, 6, 7)
+    node.swap(1, 1, 6, 6)
+    node.swap(1, 2, 6, 5)
+    node.swap(2, 0, 5, 7)
+    node.swap(2, 1, 5, 6)
+    node.swap(5, 0, 4, 7)
     node.print_debug()
     global ISRED
     ISRED = False

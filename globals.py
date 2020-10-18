@@ -8,6 +8,7 @@ TIMELIMIT = DEFAULT_TIMELIMIT
 ISRED = DEFAULT_ISRED
 # TARGETS = defaultdict(list)
 
+
 def load_data():
     global BOARD_SIZE
     global TIMELIMIT
@@ -18,18 +19,20 @@ def load_data():
             data = json.loads(settings.read())
             BOARD_SIZE = data['BOARD_SIZE']
             TIMELIMIT = data['TIMELIMIT']
-            ISRED = data['ISRED']    
+            ISRED = data['ISRED']
             # TARGETS = data['TARGETS']
             # print(TARGETS)
     except:
         pass
 
+
 def add_targets(targets):
     global TARGETS
     TARGETS = targets
     with open("settings.json", "w") as settings:
-        settings.write(json.dumps({'BOARD_SIZE' : BOARD_SIZE, 'TIMELIMIT' : TIMELIMIT, 'ISRED' : ISRED}))
+        settings.write(json.dumps({'BOARD_SIZE': BOARD_SIZE, 'TIMELIMIT': TIMELIMIT, 'ISRED': ISRED}))
         # settings.write(json.dumps({'BOARD_SIZE' : BOARD_SIZE, 'TIMELIMIT' : TIMELIMIT, 'ISRED' : ISRED, 'TARGETS' : TARGETS}))
+
 
 load_data()
 

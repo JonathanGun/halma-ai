@@ -4,8 +4,10 @@ from globals import BOARD_SIZE
 
 selected_cell = None
 
+
 def enemy(pion):
     return Pion((pion + 1) % 2)
+
 
 class Cell(Button):
     colors = {

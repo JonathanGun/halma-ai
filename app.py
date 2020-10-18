@@ -17,12 +17,14 @@ game = None
 dx = [1, 1, 0, -1, -1, -1, 0, 1]
 dy = [0, -1, -1, -1, 0, 1, 1, 1]
 
+
 class Player:
     def __init__(self, pion):
         self.pion = pion
 
     def minimax(self):
         pass
+
 
 class Game(App):
     def __init__(self, board_size=DEFAULT_BOARD_SIZE, timelimit=DEFAULT_TIMELIMIT, is_red=DEFAULT_ISRED,  **kwargs):
@@ -155,6 +157,7 @@ class Game(App):
 
 def dist(cell1, cell2):
     return abs(cell1.i - cell2.i) + abs(cell1.j - cell2.j)
+
 
 def objective(board, player, targets):
     value = 0

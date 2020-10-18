@@ -4,6 +4,7 @@ import json
 import os
 from config import DEFAULT_BOARD_SIZE, DEFAULT_TIMELIMIT, DEFAULT_ISRED
 
+
 def remove_temporary_settings():
     """
     Removes settings.json when program exits
@@ -18,6 +19,7 @@ def remove_temporary_settings():
     """
     if os.path.exists("settings.json"):
         os.remove("settings.json")
+
 
 if __name__ == "__main__":
     print(f"[Board Size] optional; integer: board size (8, 10, or 16), default = {DEFAULT_BOARD_SIZE}")
@@ -50,7 +52,7 @@ if __name__ == "__main__":
 
     with open("settings.json", "w") as settings:
         # settings.write(json.dumps({'BOARD_SIZE' : BOARD_SIZE, 'TIMELIMIT' : TIMELIMIT, 'ISRED' : ISRED, 'TARGETS' : None}))
-        settings.write(json.dumps({'BOARD_SIZE' : BOARD_SIZE, 'TIMELIMIT' : TIMELIMIT, 'ISRED' : ISRED}))
+        settings.write(json.dumps({'BOARD_SIZE': BOARD_SIZE, 'TIMELIMIT': TIMELIMIT, 'ISRED': ISRED}))
         atexit.register(remove_temporary_settings)
 
     from app import Game
