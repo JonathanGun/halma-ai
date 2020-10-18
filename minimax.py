@@ -38,12 +38,12 @@ class Minimax():
         self.__start_time = timeit.default_timer()
         self.T_LIMIT = t_limit - 0.0025  #
         self.targets = targets
+        self.bot = active_player
 
         max_depth = 2
         best_value = float("-inf")
         best_move = None
         while (self.__compute_time() < self.T_LIMIT):
-            # print(active_player)
             val, move = self.__max_value(Node(config), float('-inf'), float('inf'), 0, max_depth, active_player)
             self.__print_node(val, move, 0)
             print("max_depth:", max_depth)
@@ -78,7 +78,7 @@ class Minimax():
         result = []
         for i in range(len(node.config)):
             for j in range(len(node[i])):
-                if (node[i][j] == (1 if active_player == Pion.BLUE else -1)):
+                if (node[i][j] == (1 if (active_player == self.bot) else -1)):
                     result.append((i, j))
         # print("available pion:", result)
         return result

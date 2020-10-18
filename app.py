@@ -41,8 +41,9 @@ class Game(App):
         self.active_player.targets = [self.board.board[i][j] for (i, j) in self.TARGETS[self.active_player.pion]]
         self.enemy.targets = [self.board.board[i][j] for (i, j) in self.TARGETS[self.enemy.pion]]
 
-        if not ISRED:
-            self.next_turn()
+        # if not ISRED:
+        #     self.next_turn()
+        self.run_bot()
 
     def build(self):
         return self.board
@@ -161,11 +162,14 @@ class Game(App):
         self.active_player, self.enemy = self.enemy, self.active_player
 
         # auto move if player is a bot
+        self.run_bot()
+
+    def run_bot(self):
         if (self.active_player.mode == "Minimax"):
+            self.board.do_layout()
             (frm_x, frm_y), (to_x, to_y) = Minimax(self.TARGETS, self.board.to_ozer_board(), TIMELIMIT/1000, active_player=Pion.BLUE if ISRED else Pion.RED).result
             self.move(self.board.board[frm_x][frm_y], self.board.board[to_x][to_y])
             self.next_turn()
-
 
 def dist(cell1, cell2):
     return abs(cell1.i - cell2.i) + abs(cell1.j - cell2.j)
