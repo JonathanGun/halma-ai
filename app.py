@@ -1,5 +1,6 @@
 from kivy.app import App
 from kivy.uix.button import Button
+from kivy.uix.pagelayout import PageLayout
 from threading import Thread
 from queue import Queue
 from config import DEFAULT_BOARD_SIZE, DEFAULT_TIMELIMIT, DEFAULT_ISRED, DEFAULT_MODE
@@ -34,6 +35,7 @@ class Game(App):
         ISRED = is_red
         self.TARGETS = []
         game = self
+        self.turn = 1
 
         self.init_players(mode)
         super().__init__(**kwargs)
@@ -47,7 +49,7 @@ class Game(App):
         #     self.next_turn()
         thread = Thread(target=self.run_bot)
         thread.start()
-        print(thread.name)
+        # print(thread.name)
 
     def build(self):
         return self.board
@@ -144,7 +146,7 @@ class Game(App):
     def move(self, frm, to):
         if self.is_valid_move(frm, to):
             # sementara player yg ngecek selalu pemain, karena tdk tw gmn dpt player dari frm
-            print("moved", frm, "to", to)
+            # print("moved", frm, "to", to)
             to.pion = frm.pion
             frm.pion = None
             frm.set_reachable(False)
@@ -154,7 +156,7 @@ class Game(App):
             # print("objective = ", objective(self.board, self.active_player, self.TARGETS))
             return True
         else:
-            print("failed to move", frm, "to", to)
+            # print("failed to move", frm, "to", to)
             return False
 
     def next_turn(self):
@@ -162,13 +164,19 @@ class Game(App):
         if(winner is not None):
             print("Game over!")
             print(winner.pion, " wins")
+            input('Press any key to exit.')
             exit()
         self.active_player, self.enemy = self.enemy, self.active_player
+        if self.active_player.pion == Pion.RED:
+            print('Current player: RED')
+            self.turn += 1
+        else:
+            print('Current player: BLUE')
+        print('Current turn:', self.turn)
 
         # auto move if player is a bot
         thread = Thread(target=self.run_bot)
         thread.start()
-        print(thread.name)
 
     def run_bot(self):
         if (self.active_player.mode == "Minimax"):

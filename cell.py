@@ -67,7 +67,7 @@ class Cell(Button):
         return self is selected_cell
 
     def _on_press(self, instance):
-        print("clicked", instance.i, instance.j)
+        # print("clicked", instance.i, instance.j)
         global selected_cell
 
         if self.game.active_player.mode == "Human":
