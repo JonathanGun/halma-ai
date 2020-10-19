@@ -164,19 +164,19 @@ class Game(App):
         if(winner is not None):
             print("Game over!")
             print(winner.pion, " wins")
-            input('Press any key to exit.')
-            exit()
-        self.active_player, self.enemy = self.enemy, self.active_player
-        if self.active_player.pion == Pion.RED:
-            print('Current player: RED')
-            self.turn += 1
-        else:
-            print('Current player: BLUE')
-        print('Current turn:', self.turn)
+            # exit()
+        if winner is None:
+            self.active_player, self.enemy = self.enemy, self.active_player
+            if self.active_player.pion == Pion.RED:
+                print('Current player: RED')
+                self.turn += 1
+            else:
+                print('Current player: BLUE')
+            print('Current turn:', self.turn)
 
-        # auto move if player is a bot
-        thread = Thread(target=self.run_bot)
-        thread.start()
+            # auto move if player is a bot
+            thread = Thread(target=self.run_bot)
+            thread.start()
 
     def run_bot(self):
         if (self.active_player.mode == "Minimax"):
