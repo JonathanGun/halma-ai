@@ -2,7 +2,7 @@
 Made using Kivy
 
 
-<img src="./screenshot/preview.jpg" width="400px">
+<img src="./screenshots/preview.jpg" width="400px">
 
 
 ## Prerequisite
