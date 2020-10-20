@@ -1,5 +1,11 @@
 # Halma-AI
-Made using Kivy
+Simple halma game, made using Kivy.
+
+There are 4 modes:
+- Human vs Human
+- Human vs Bot Minimax
+- Human vs Bot Miniax + Local Search
+- Bot Minimax vs Bot Minimax + Local Search
 
 
 <img src="./screenshots/preview.png" width="400px">
@@ -29,7 +35,6 @@ python main.py
 or
 
 Download executable on [releases](https://github.com/JonathanGun/halma-ai/releases) tab
-Run exe
 
 
 ## Packaging
@@ -57,8 +62,8 @@ device must be connected to pc, more info check https://kivy.org/doc/stable/guid
 This project is made to fulfill IF3170 Artificial Intelligent course.
 
 ## Authors
-[Ricky Fernando](https://github.com/rickymen) - 13518062
-[Jonathan Yudi Gunawan](https://github.com/JonathanGun) - 13518084
-[Morgen Sudyanto](https://github.com/moondemon68) - 13518093
-[Chokyi Ozer](https://github.com/ozer0532) - 13518107
+- [Ricky Fernando](https://github.com/rickymen) - 13518062
+- [Jonathan Yudi Gunawan](https://github.com/JonathanGun) - 13518084
+- [Morgen Sudyanto](https://github.com/moondemon68) - 13518093
+- [Chokyi Ozer](https://github.com/ozer0532) - 13518107
 
